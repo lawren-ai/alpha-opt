@@ -211,13 +211,21 @@ python tests/test_integration.py
 ## 📊 Screenshots
 
 ### Portfolio Optimizer
+![AlphaOPT Dashboard](screenshots/dashboard.PNG)
+*Interactive dashboard for portfolio optimization and options pricing*
+
+### Portfolio Optimizer
+![Portfolio Optimizer](screenshots/portfolio.PNG)
+
 *Interactive portfolio optimization with efficient frontier visualization*
 
 ### Options Pricer
+![Options Pricer](screenshots/options.PNG)
 *Real-time options pricing with Greeks analysis*
 
-### Market Data Explorer
-*Historical price analysis and statistics*
+### Monte Carlo Simulation
+![Monte Carlo](screenshots/monte_carloo.PNG)
+*Numerical computation with Black scholes comparison*
 
 ## 🔮 Future Enhancements
 
