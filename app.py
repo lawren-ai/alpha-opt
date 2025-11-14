@@ -211,7 +211,7 @@ if page == "📊 Portfolio Optimizer":
                             )
                         
                         # Weights visualization
-                        st.markdown("### 🥧 Optimal Portfolio Allocation")
+                        st.markdown("###  Optimal Portfolio Allocation")
                         
                         col_pie, col_table = st.columns([1, 1])
                         
