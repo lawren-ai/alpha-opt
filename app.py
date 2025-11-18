@@ -50,7 +50,7 @@ if 'returns' not in st.session_state:
     st.session_state.returns = None
 
 # Title
-st.title("📈 AlphaOPT")
+st.title(" AlphaOPT")
 st.markdown("*Portfolio Optimization & Options Pricing Platform*")
 st.markdown("---")
 
@@ -58,7 +58,7 @@ st.markdown("---")
 st.sidebar.title("Navigation")
 page = st.sidebar.radio(
     "Select Module:",
-    ["📊 Portfolio Optimizer", "🎯 Options Pricer", "📉 Market Data Explorer"]
+    [" Portfolio Optimizer", " Options Pricer", " Market Data Explorer"]
 )
 
 st.sidebar.markdown("---")
@@ -74,14 +74,14 @@ st.sidebar.info(
 # ============================================================================
 # PAGE 1: PORTFOLIO OPTIMIZER
 # ============================================================================
-if page == "📊 Portfolio Optimizer":
+if page == " Portfolio Optimizer":
     st.header("Portfolio Optimization")
     st.markdown("Optimize your portfolio using Modern Portfolio Theory")
     
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        st.subheader("📥 Input Parameters")
+        st.subheader(" Input Parameters")
         
         # Ticker input
         default_tickers = "AAPL,MSFT,GOOGL,AMZN"
@@ -108,7 +108,7 @@ if page == "📊 Portfolio Optimizer":
             )
         
         # Load data button
-        if st.button("🔄 Load Data", type="primary"):
+        if st.button(" Load Data", type="primary"):
             with st.spinner("Fetching market data..."):
                 try:
                     loader = MarketDataLoader()
@@ -122,12 +122,12 @@ if page == "📊 Portfolio Optimizer":
                     st.session_state.prices = prices
                     st.session_state.returns = returns
                     st.session_state.data_loaded = True
-                    st.success(f"✅ Loaded {len(prices)} days of data for {len(tickers)} stocks")
+                    st.success(f" Loaded {len(prices)} days of data for {len(tickers)} stocks")
                 except Exception as e:
-                    st.error(f"❌ Error loading data: {e}")
+                    st.error(f" Error loading data: {e}")
     
     with col2:
-        st.subheader("⚙️ Optimization Settings")
+        st.subheader(" Optimization Settings")
         target_return = st.slider(
             "Target Annual Return (%)",
             min_value=0.0,
@@ -149,7 +149,7 @@ if page == "📊 Portfolio Optimizer":
         st.markdown("---")
         
         # Display price chart
-        st.subheader("📈 Price History")
+        st.subheader(" Price History")
         fig = go.Figure()
         for col in st.session_state.prices.columns:
             # Normalize to 100 for comparison
@@ -174,7 +174,7 @@ if page == "📊 Portfolio Optimizer":
         col1, col2, col3 = st.columns([1, 1, 1])
         
         with col2:
-            if st.button("🎯 Optimize Portfolio", type="primary", use_container_width=True):
+            if st.button(" Optimize Portfolio", type="primary", use_container_width=True):
                 with st.spinner("Running optimization..."):
                     try:
                         optimizer = PortfolioOptimizer(st.session_state.returns)
@@ -184,10 +184,10 @@ if page == "📊 Portfolio Optimizer":
                         )
                         
                         # Display results
-                        st.success("✅ Optimization Complete!")
+                        st.success(" Optimization Complete!")
                         
                         # Metrics
-                        st.markdown("### 📊 Portfolio Metrics")
+                        st.markdown("###  Portfolio Metrics")
                         metric_col1, metric_col2, metric_col3 = st.columns(3)
                         
                         with metric_col1:
@@ -240,7 +240,7 @@ if page == "📊 Portfolio Optimizer":
                             st.caption("*Based on $10,000 portfolio")
                         
                         # Efficient Frontier
-                        st.markdown("### 📉 Efficient Frontier")
+                        st.markdown("###  Efficient Frontier")
                         with st.spinner("Generating efficient frontier..."):
                             frontier = optimizer.efficient_frontier(n_points=50)
                             
@@ -275,7 +275,7 @@ if page == "📊 Portfolio Optimizer":
                             st.plotly_chart(fig_frontier, use_container_width=True)
                         
                     except Exception as e:
-                        st.error(f"❌ Optimization failed: {e}")
+                        st.error(f" Optimization failed: {e}")
                         import traceback
                         with st.expander("Error Details"):
                             st.code(traceback.format_exc())
@@ -283,14 +283,14 @@ if page == "📊 Portfolio Optimizer":
 # ============================================================================
 # PAGE 2: OPTIONS PRICER
 # ============================================================================
-elif page == "🎯 Options Pricer":
+elif page == " Options Pricer":
     st.header("Options Pricing & Greeks")
     st.markdown("Price options using Black-Scholes Model and Monte Carlo Simulation")
     
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        st.subheader("📊 Option Parameters")
+        st.subheader(" Option Parameters")
         
         # Stock ticker for reference
         ticker = st.text_input("Stock Ticker (optional)", value="AAPL", help="For reference only")
@@ -340,7 +340,7 @@ elif page == "🎯 Options Pricer":
         option_type = st.radio("Option Type", ["Call", "Put"])
     
     with col2:
-        st.subheader("⚙️ Pricing Method")
+        st.subheader(" Pricing Method")
         method = st.radio(
             "Select Method:",
             ["Black-Scholes (Analytical)", "Monte Carlo (Simulation)"]
@@ -353,7 +353,7 @@ elif page == "🎯 Options Pricer":
                 value=100000
             )
         
-        if st.button("💰 Price Option", type="primary", use_container_width=True):
+        if st.button(" Price Option", type="primary", use_container_width=True):
             with st.spinner("Calculating..."):
                 try:
                     if method == "Black-Scholes (Analytical)":
@@ -366,10 +366,10 @@ elif page == "🎯 Options Pricer":
                             price = bs.put_price()
                             greeks = bs.all_greeks('put')
                         
-                        st.success("✅ Calculation Complete!")
+                        st.success(" Calculation Complete!")
                         
                         # Display price
-                        st.markdown("### 💵 Option Price")
+                        st.markdown("###  Option Price")
                         st.metric(
                             f"{option_type} Option Price",
                             f"${price:.4f}",
@@ -377,7 +377,7 @@ elif page == "🎯 Options Pricer":
                         )
                         
                         # Display Greeks
-                        st.markdown("### 📈 The Greeks")
+                        st.markdown("###  The Greeks")
                         st.markdown("*Sensitivity measures for risk management*")
                         
                         greek_col1, greek_col2, greek_col3 = st.columns(3)
@@ -414,7 +414,7 @@ elif page == "🎯 Options Pricer":
                             )
                         
                         # Greeks explanation
-                        with st.expander("📚 Understanding the Greeks"):
+                        with st.expander(" Understanding the Greeks"):
                             st.markdown("""
                             **Delta**: How much the option price changes when stock price moves $1
                             - Call: 0 to 1 | Put: -1 to 0
@@ -444,10 +444,10 @@ elif page == "🎯 Options Pricer":
                         else:
                             result = mc.price_european_put()
                         
-                        st.success("✅ Simulation Complete!")
+                        st.success(" Simulation Complete!")
                         
                         # Display results
-                        st.markdown("### 💵 Option Price (Monte Carlo)")
+                        st.markdown("###  Option Price (Monte Carlo)")
                         
                         price_col1, price_col2 = st.columns(2)
                         
@@ -464,13 +464,13 @@ elif page == "🎯 Options Pricer":
                                 help="Range of uncertainty in the estimate"
                             )
                         
-                        st.info(f"📊 Based on {n_simulations:,} simulated price paths")
+                        st.info(f" Based on {n_simulations:,} simulated price paths")
                         
                         # Compare with Black-Scholes
                         bs = BlackScholesModel(S, K, T, r, sigma)
                         bs_price = bs.call_price() if option_type == "Call" else bs.put_price()
                         
-                        st.markdown("### 📊 Comparison with Black-Scholes")
+                        st.markdown("###  Comparison with Black-Scholes")
                         comp_col1, comp_col2, comp_col3 = st.columns(3)
                         
                         with comp_col1:
@@ -482,7 +482,7 @@ elif page == "🎯 Options Pricer":
                             st.metric("Difference", f"${diff:.4f}")
                 
                 except Exception as e:
-                    st.error(f"❌ Calculation failed: {e}")
+                    st.error(f" Calculation failed: {e}")
                     import traceback
                     with st.expander("Error Details"):
                         st.code(traceback.format_exc())
@@ -509,7 +509,7 @@ else:  # Market Data Explorer
             value=datetime.now()
         )
     
-    if st.button("📥 Load Data", type="primary"):
+    if st.button(" Load Data", type="primary"):
         with st.spinner(f"Fetching data for {ticker}..."):
             try:
                 loader = MarketDataLoader()
@@ -520,10 +520,10 @@ else:  # Market Data Explorer
                 )
                 returns = loader.calculate_returns(prices)
                 
-                st.success(f"✅ Loaded {len(prices)} days of data")
+                st.success(f" Loaded {len(prices)} days of data")
                 
                 # Price chart
-                st.markdown("### 📈 Price History")
+                st.markdown("###  Price History")
                 fig = go.Figure()
                 fig.add_trace(go.Scatter(
                     x=prices.index,
@@ -542,7 +542,7 @@ else:  # Market Data Explorer
                 st.plotly_chart(fig, use_container_width=True)
                 
                 # Statistics
-                st.markdown("### 📊 Statistics")
+                st.markdown("###  Statistics")
                 
                 stat_col1, stat_col2, stat_col3, stat_col4 = st.columns(4)
                 
@@ -560,7 +560,7 @@ else:  # Market Data Explorer
                     st.metric("High", f"${max_price:.2f}")
                 
                 # Returns distribution
-                st.markdown("### 📉 Returns Distribution")
+                st.markdown("###  Returns Distribution")
                 fig_hist = px.histogram(
                     returns,
                     x=ticker,
@@ -575,7 +575,7 @@ else:  # Market Data Explorer
                 st.plotly_chart(fig_hist, use_container_width=True)
                 
             except Exception as e:
-                st.error(f"❌ Error: {e}")
+                st.error(f" Error: {e}")
 
 # Footer
 st.markdown("---")
