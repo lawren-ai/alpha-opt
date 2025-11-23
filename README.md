@@ -1,4 +1,4 @@
-# 📈 AlphaOPT
+#  AlphaOPT
 
 A comprehensive Python-based portfolio optimization and options pricing platform with real-time market data integration and interactive visualizations.
 
@@ -6,29 +6,29 @@ A comprehensive Python-based portfolio optimization and options pricing platform
 [![Streamlit](https://img.shields.io/badge/streamlit-1.24+-red.svg)](https://streamlit.io/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## 🎯 Features
+##  Features
 
-### 📊 Portfolio Optimization
+###  Portfolio Optimization
 - **Mean-Variance Optimization** based on Modern Portfolio Theory (Markowitz, 1952)
 - Interactive efficient frontier visualization
 - Sharpe ratio maximization
 - Customizable constraints and target returns
 - Real-time portfolio rebalancing calculations
 
-### 🎯 Options Pricing
+###  Options Pricing
 - **Black-Scholes Model** for European options
 - Complete Greeks calculation (Delta, Gamma, Vega, Theta, Rho)
 - **Monte Carlo simulation** for exotic derivatives
 - Side-by-side pricing comparison
 - Interactive parameter adjustments
 
-### 📉 Market Data Analysis
+###  Market Data Analysis
 - Real-time data integration via Yahoo Finance
 - Historical price charts and trend analysis
 - Returns distribution and volatility calculations
 - Multi-asset correlation analysis
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 - Python 3.9 or higher
@@ -60,7 +60,7 @@ streamlit run app.py
 
 The dashboard will open automatically in your browser at `http://localhost:8501`
 
-## 💻 Usage Examples
+## Usage Examples
 
 ### Portfolio Optimization
 ```python
@@ -124,7 +124,7 @@ print(f"Option Price: ${result['price']:.2f}")
 print(f"95% CI: ±${result['confidence_interval']:.2f}")
 ```
 
-## 📁 Project Structure
+##  Project Structure
 ```
 alpha-opt/
 ├── src/
@@ -146,7 +146,7 @@ alpha-opt/
 └── README.md                         # This file
 ```
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Technology | Purpose |
 |------------|---------|
@@ -159,7 +159,7 @@ alpha-opt/
 | **Plotly** | Dynamic visualizations |
 | **yfinance** | Real-time market data API |
 
-## 🎓 Theory & Mathematics
+##  Theory & Mathematics
 
 ### Modern Portfolio Theory
 Implementation of Harry Markowitz's mean-variance framework:
@@ -201,14 +201,14 @@ S(t+Δt) = S(t) * exp((r - σ²/2)Δt + σ√Δt*Z)
 
 Where Z ~ N(0,1)
 
-## 🧪 Testing
+##  Testing
 
 Run the integration test suite:
 ```bash
 python tests/test_integration.py
 ```
 
-## 📊 Screenshots
+##  Screenshots
 
 ### Portfolio Optimizer
 ![AlphaOPT Dashboard](screenshots/dashboard.PNG)
@@ -220,14 +220,18 @@ python tests/test_integration.py
 *Interactive portfolio optimization with efficient frontier visualization*
 
 ### Options Pricer
-![Options Pricer](screenshots/options.PNG)
+![Options Pricer](screenshots/pricing.PNG)
 *Real-time options pricing with Greeks analysis*
 
 ### Monte Carlo Simulation
-![Monte Carlo](screenshots/monte_carloo.PNG)
+![Monte Carlo](screenshots/monte_carlo.PNG)
 *Numerical computation with Black scholes comparison*
 
-## 🔮 Future Enhancements
+### Live Demo
+![Demo](screenshots/demo.gif)
+*Live Demonstration*
+
+##  Future Enhancements
 
 - [ ] Backtesting framework with historical performance
 - [ ] Value at Risk (VaR) and Conditional VaR calculations
@@ -238,31 +242,31 @@ python tests/test_integration.py
 - [ ] PDF/CSV export functionality
 - [ ] Authentication and multi-user support
 
-## 🐛 Known Issues
+##  Known Issues
 
 - Yahoo Finance API may occasionally rate-limit requests (retry logic implemented)
 - Optimization may use equal-weighted fallback for extreme parameters
 - Historical data limited to publicly available tickers
 
-## 📝 License
+##  License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+##  Acknowledgments
 
 - **Modern Portfolio Theory** - Harry Markowitz (1952)
 - **Black-Scholes-Merton Model** - Fischer Black, Myron Scholes, Robert Merton (1973)
 - Market data provided by **Yahoo Finance**
 - Built with **Streamlit** framework
 
-## 👤 Author
+##  Author
 
 **Ayotunde Akinboade**
 - GitHub: [@lawren-ai](https://github.com/lawren-ai)
 - LinkedIn: [Ayotunde Akinboade](https://linkedin.com/in/ayotunde-akinboade)
 
 
-## 🤝 Contributing
+##  Contributing
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/lawren-ai/alpha-opt/issues).
 
