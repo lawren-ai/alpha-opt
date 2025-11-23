@@ -20,6 +20,7 @@ class MarketDataLoader:
     def fetch_stock_data(self, tickers: List[str], 
                          start_date: str = None, 
                          end_date: str = None,
+                         period: str = None,
                          max_retries: int = 3) -> pd.DataFrame:
         """
         Fetch historical stock prices with retry logic
@@ -39,6 +40,11 @@ class MarketDataLoader:
         --------
         pd.DataFrame : Adjusted close prices
         """
+        if period and not start_date:
+            end_date = datetime.now().strftime("%Y-%m-%d")
+            years = int(period.replace("y", ""))  # e.g., "5y" → 5
+            start_date = (datetime.now() - timedelta(days=365 * years)).strftime("%Y-%m-%d")
+
         if start_date is None:
             start_date = (datetime.now() - timedelta(days=365)).strftime('%Y-%m-%d')
         if end_date is None:
@@ -218,3 +224,4 @@ if __name__ == "__main__":
         print("2. Try running: pip install --upgrade yfinance")
         print("3. Try using a VPN if Yahoo Finance is blocked")
         print("4. Check if you can access https://finance.yahoo.com in your browser")
+

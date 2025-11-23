@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: alpha-opt-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10
+    healthCheckPath: /health

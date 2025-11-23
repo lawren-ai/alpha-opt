@@ -1,32 +1,21 @@
 """
-Monte Carlo Simulation for Option Pricing
-Alternative to Black-Scholes for complex derivatives
+Monte Carlo Simulation for Options Pricing
 
-Advantages:
-- Can price path-dependent options (Asian, Barrier, Lookback)
-- Handles multiple underlying assets
-- Works with any stochastic process
-
-Method:
-1. Simulate many possible stock price paths
-2. Calculate payoff for each path
-3. Average the payoffs and discount to present value
+Uses Geometric Brownian Motion to simulate stock price paths
+and price options through simulation.
 """
 
 import numpy as np
-from typing import Dict, Callable
+from typing import Dict, List
 
 
 class MonteCarloSimulator:
     """
-    Monte Carlo option pricing using Geometric Brownian Motion
-    
-    Stock price follows: dS = μS*dt + σS*dW
-    Where dW is a Wiener process (random walk)
+    Monte Carlo simulator for option pricing using GBM
     """
     
     def __init__(self, S0: float, K: float, T: float, r: float, 
-                 sigma: float, n_simulations: int = 100000, n_steps: int = 252):
+                 sigma: float, n_simulations: int = 10000, n_steps: int = 252):
         """
         Initialize Monte Carlo simulator
         
@@ -45,7 +34,7 @@ class MonteCarloSimulator:
         n_simulations : int
             Number of price paths to simulate
         n_steps : int
-            Time steps per simulation (252 = daily for 1 year)
+            Number of time steps per simulation (252 = trading days/year)
         """
         self.S0 = S0
         self.K = K
@@ -54,146 +43,258 @@ class MonteCarloSimulator:
         self.sigma = sigma
         self.n_simulations = n_simulations
         self.n_steps = n_steps
-        self.dt = T / n_steps
+        self.dt = T / n_steps  # Time increment
         
-    def simulate_paths(self) -> np.ndarray:
+        # Storage for simulated paths
+        self.paths = None
+        
+    def generate_paths(self) -> np.ndarray:
         """
-        Simulate stock price paths using Geometric Brownian Motion
+        Generate stock price paths using Geometric Brownian Motion
         
-        Formula: S(t+dt) = S(t) * exp((r - σ²/2)*dt + σ*√dt*Z)
-        Where Z ~ N(0,1)
+        Uses the exact solution:
+        S(t+dt) = S(t) * exp((r - σ²/2)dt + σ√dt*Z)
         
         Returns:
         --------
-        np.ndarray : Shape (n_simulations, n_steps+1)
+        np.ndarray : Shape (n_simulations, n_steps+1) of price paths
         """
-        # Initialize price paths
+        # Generate random normal variables for all paths at once
+        Z = np.random.standard_normal((self.n_simulations, self.n_steps))
+        
+        # Initialize paths array
         paths = np.zeros((self.n_simulations, self.n_steps + 1))
         paths[:, 0] = self.S0
         
-        # Generate random shocks
-        Z = np.random.standard_normal((self.n_simulations, self.n_steps))
+        # Calculate drift and diffusion components
+        drift = (self.r - 0.5 * self.sigma**2) * self.dt
+        diffusion = self.sigma * np.sqrt(self.dt)
         
-        # Simulate paths
-        for t in range(1, self.n_steps + 1):
-            paths[:, t] = paths[:, t-1] * np.exp(
-                (self.r - 0.5 * self.sigma**2) * self.dt + 
-                self.sigma * np.sqrt(self.dt) * Z[:, t-1]
-            )
+        # Generate paths using cumulative sum for efficiency
+        increments = drift + diffusion * Z
+        log_returns = np.cumsum(increments, axis=1)
+        paths[:, 1:] = self.S0 * np.exp(log_returns)
         
+        self.paths = paths
         return paths
     
-    def price_european_call(self) -> Dict:
+    def price_european_option(self, option_type: str = 'call') -> Dict:
         """
-        Price European call option using Monte Carlo
+        Price European option using Monte Carlo
         
-        Returns:
-        --------
-        dict : Price, standard error, and confidence interval
-        """
-        paths = self.simulate_paths()
-        final_prices = paths[:, -1]
-        
-        # Calculate payoffs
-        payoffs = np.maximum(final_prices - self.K, 0)
-        
-        # Discount to present value
-        price = np.exp(-self.r * self.T) * np.mean(payoffs)
-        
-        # Calculate standard error
-        std_error = np.std(payoffs) / np.sqrt(self.n_simulations)
-        confidence_interval = 1.96 * std_error * np.exp(-self.r * self.T)
-        
-        return {
-            'price': price,
-            'std_error': std_error,
-            'confidence_interval': confidence_interval
-        }
-    
-    def price_european_put(self) -> Dict:
-        """Price European put option"""
-        paths = self.simulate_paths()
-        final_prices = paths[:, -1]
-        
-        payoffs = np.maximum(self.K - final_prices, 0)
-        price = np.exp(-self.r * self.T) * np.mean(payoffs)
-        
-        std_error = np.std(payoffs) / np.sqrt(self.n_simulations)
-        confidence_interval = 1.96 * std_error * np.exp(-self.r * self.T)
-        
-        return {
-            'price': price,
-            'std_error': std_error,
-            'confidence_interval': confidence_interval
-        }
-    
-    def price_asian_call(self) -> Dict:
-        """
-        Price Asian call option (payoff based on average price)
-        
-        Payoff = max(Average(S) - K, 0)
-        """
-        paths = self.simulate_paths()
-        average_prices = np.mean(paths, axis=1)
-        
-        payoffs = np.maximum(average_prices - self.K, 0)
-        price = np.exp(-self.r * self.T) * np.mean(payoffs)
-        
-        std_error = np.std(payoffs) / np.sqrt(self.n_simulations)
-        confidence_interval = 1.96 * std_error * np.exp(-self.r * self.T)
-        
-        return {
-            'price': price,
-            'std_error': std_error,
-            'confidence_interval': confidence_interval
-        }
-    
-    def price_barrier_option(self, barrier: float, option_type: str = 'up-and-out-call') -> Dict:
-        """
-        Price barrier options (knocked out if price hits barrier)
+        Algorithm:
+        1. Simulate N stock price paths to maturity
+        2. Calculate payoff for each path
+        3. Take average payoff
+        4. Discount to present value
         
         Parameters:
         -----------
-        barrier : float
-            Barrier level
         option_type : str
-            'up-and-out-call', 'down-and-out-put', etc.
+            'call' or 'put'
+            
+        Returns:
+        --------
+        dict : Contains price, standard error, and confidence interval
         """
-        paths = self.simulate_paths()
-        final_prices = paths[:, -1]
+        if self.paths is None:
+            self.generate_paths()
         
-        if option_type == 'up-and-out-call':
-            # Option is knocked out if price goes above barrier
-            knockout = np.any(paths >= barrier, axis=1)
-            payoffs = np.maximum(final_prices - self.K, 0)
-            payoffs[knockout] = 0
-        elif option_type == 'down-and-out-put':
-            # Option is knocked out if price goes below barrier
-            knockout = np.any(paths <= barrier, axis=1)
-            payoffs = np.maximum(self.K - final_prices, 0)
-            payoffs[knockout] = 0
+        # Extract terminal stock prices (at maturity)
+        ST = self.paths[:, -1]
         
-        price = np.exp(-self.r * self.T) * np.mean(payoffs)
-        std_error = np.std(payoffs) / np.sqrt(self.n_simulations)
+        # Calculate payoff for each path
+        if option_type == 'call':
+            payoffs = np.maximum(ST - self.K, 0)
+        else:
+            payoffs = np.maximum(self.K - ST, 0)
+        
+        # Discount payoffs to present value
+        option_price = np.exp(-self.r * self.T) * np.mean(payoffs)
+        
+        # Calculate standard error (uncertainty in MC estimate)
+        std_error = np.std(payoffs) / np.sqrt(self.n_simulations) * \
+                    np.exp(-self.r * self.T)
+        
+        # 95% confidence interval: mean ± 1.96 * SE
+        conf_interval = 1.96 * std_error
         
         return {
-            'price': price,
+            'price': option_price,
             'std_error': std_error,
-            'knockout_probability': np.mean(knockout)
+            'conf_lower': option_price - conf_interval,
+            'conf_upper': option_price + conf_interval
         }
+    
+    def price_asian_option(self, option_type: str = 'call') -> Dict:
+        """
+        Price Asian (average price) option
+        
+        Asian options: Payoff based on AVERAGE stock price over the period
+        - Call: max(S_avg - K, 0)
+        - Put: max(K - S_avg, 0)
+        
+        Returns:
+        --------
+        dict : Price and statistics
+        """
+        if self.paths is None:
+            self.generate_paths()
+        
+        # Calculate average price for each path
+        S_avg = np.mean(self.paths, axis=1)
+        
+        # Calculate payoff based on average
+        if option_type == 'call':
+            payoffs = np.maximum(S_avg - self.K, 0)
+        else:
+            payoffs = np.maximum(self.K - S_avg, 0)
+        
+        # Discount to present value
+        option_price = np.exp(-self.r * self.T) * np.mean(payoffs)
+        std_error = np.std(payoffs) / np.sqrt(self.n_simulations) * \
+                    np.exp(-self.r * self.T)
+        
+        return {
+            'price': option_price,
+            'std_error': std_error
+        }
+    
+    def calculate_greeks_mc(self, option_type: str = 'call', 
+                           bump_size: float = 0.01) -> Dict:
+        """
+        Calculate Greeks using finite difference method
+        
+        Method: Bump and reprice
+        - Delta: (V(S+h) - V(S-h)) / (2h)
+        - Gamma: (V(S+h) - 2V(S) + V(S-h)) / h²
+        - Vega: (V(σ+h) - V(σ-h)) / (2h)
+        
+        Parameters:
+        -----------
+        option_type : str
+            'call' or 'put'
+        bump_size : float
+            Size of perturbation for finite differences
+            
+        Returns:
+        --------
+        dict : Delta, Gamma, Vega estimates
+        """
+        # Base price
+        V0 = self.price_european_option(option_type)['price']
+        
+        # Delta: bump stock price
+        original_S0 = self.S0
+        
+        self.S0 = original_S0 + bump_size
+        self.paths = None  # Reset paths
+        V_up = self.price_european_option(option_type)['price']
+        
+        self.S0 = original_S0 - bump_size
+        self.paths = None
+        V_down = self.price_european_option(option_type)['price']
+        
+        delta = (V_up - V_down) / (2 * bump_size)
+        gamma = (V_up - 2*V0 + V_down) / (bump_size**2)
+        
+        # Reset S0
+        self.S0 = original_S0
+        
+        # Vega: bump volatility
+        original_sigma = self.sigma
+        
+        self.sigma = original_sigma + bump_size
+        self.paths = None
+        V_sigma_up = self.price_european_option(option_type)['price']
+        
+        self.sigma = original_sigma - bump_size
+        self.paths = None
+        V_sigma_down = self.price_european_option(option_type)['price']
+        
+        vega = (V_sigma_up - V_sigma_down) / (2 * bump_size)
+        
+        # Reset sigma
+        self.sigma = original_sigma
+        self.paths = None  # Reset paths for future use
+        
+        return {
+            'delta': delta,
+            'gamma': gamma,
+            'vega': vega / 100  # Per 1% change
+        }
+    
+    def get_sample_paths(self, n_paths: int = 100) -> np.ndarray:
+        """
+        Get sample paths for visualization
+        
+        Parameters:
+        -----------
+        n_paths : int
+            Number of paths to return
+            
+        Returns:
+        --------
+        np.ndarray : Sample paths
+        """
+        if self.paths is None:
+            self.generate_paths()
+        
+        indices = np.random.choice(self.n_simulations, 
+                                   size=min(n_paths, self.n_simulations), 
+                                   replace=False)
+        return self.paths[indices]
 
 
+# Example usage and validation
 if __name__ == "__main__":
-    # Compare Monte Carlo with Black-Scholes
+    print("=" * 60)
+    print("Monte Carlo Option Pricing")
+    print("=" * 60)
+    
+    # Parameters
+    S0 = 100      # Stock price
+    K = 100       # Strike price
+    T = 1         # 1 year
+    r = 0.05      # 5% risk-free rate
+    sigma = 0.20  # 20% volatility
+    
+    # Initialize simulator
     mc = MonteCarloSimulator(
-        S0=100, K=100, T=1, r=0.05, sigma=0.20,
-        n_simulations=100000
+        S0=S0, K=K, T=T, r=r, sigma=sigma,
+        n_simulations=100000,
+        n_steps=252
     )
     
-    call_result = mc.price_european_call()
-    print(f"European Call Price: ${call_result['price']:.4f}")
-    print(f"95% CI: ±${call_result['confidence_interval']:.4f}")
+    # Price European call
+    print("\nEuropean Call Option:")
+    call_result = mc.price_european_option('call')
+    print(f"  MC Price: ${call_result['price']:.4f}")
+    print(f"  Std Error: ${call_result['std_error']:.4f}")
+    print(f"  95% CI: [${call_result['conf_lower']:.4f}, "
+          f"${call_result['conf_upper']:.4f}]")
     
-    # Price exotic option
-    asian_result = mc.price_asian_call()
-    print(f"\nAsian Call Price: ${asian_result['price']:.4f}")
+    # Compare with Black-Scholes
+    try:
+        from src.options.black_scholes import BlackScholesModel
+        bs = BlackScholesModel(S0, K, T, r, sigma)
+        bs_price = bs.call_price()
+        print(f"  BS Price: ${bs_price:.4f}")
+        print(f"  Difference: ${abs(call_result['price'] - bs_price):.4f}")
+    except ImportError:
+        print("  (Black-Scholes comparison unavailable)")
+    
+    # Price European put
+    print("\nEuropean Put Option:")
+    put_result = mc.price_european_option('put')
+    print(f"  MC Price: ${put_result['price']:.4f}")
+    print(f"  Std Error: ${put_result['std_error']:.4f}")
+    
+    # Calculate Greeks
+    print("\nGreeks (Monte Carlo):")
+    greeks_mc = mc.calculate_greeks_mc('call')
+    print(f"  Delta: {greeks_mc['delta']:.4f}")
+    print(f"  Gamma: {greeks_mc['gamma']:.4f}")
+    print(f"  Vega: {greeks_mc['vega']:.4f}")
+    
+    print("\n✅ Monte Carlo simulation complete!")

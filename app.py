@@ -1,7 +1,3 @@
-"""
-Quantitative Finance Toolkit - Streamlit Dashboard
-Interactive portfolio optimization and options pricing
-"""
 
 import streamlit as st
 import pandas as pd
