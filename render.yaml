@@ -16,17 +16,17 @@
       - key: PORT
         value: "8000"
     
-  # MLflow Server
-  - type: web
-    name: mlflow-server
-    env: docker
-    dockerfilePath: ./Dockerfile.mlflow
-    dockerContext: .
-    region: oregon
-    plan: free
-    healthCheckPath: /health
-    envVars:
-      - key: MLFLOW_BACKEND_STORE_URI
-        value: sqlite:///mlflow/mlflow.db
-      - key: MLFLOW_DEFAULT_ARTIFACT_ROOT
-        value: /mlflow/artifacts
+  # # MLflow Server
+  # - type: web
+  #   name: mlflow-server
+  #   env: docker
+  #   dockerfilePath: ./Dockerfile.mlflow
+  #   dockerContext: .
+  #   region: oregon
+  #   plan: free
+  #   healthCheckPath: /health
+  #   envVars:
+  #     - key: MLFLOW_BACKEND_STORE_URI
+  #       value: sqlite:///mlflow/mlflow.db
+  #     - key: MLFLOW_DEFAULT_ARTIFACT_ROOT
+  #       value: /mlflow/artifacts
