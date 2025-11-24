@@ -1,9 +1,32 @@
-services:
+ services:
+  # FastAPI Application
   - type: web
     name: alpha-opt-api
     env: docker
     dockerfilePath: ./Dockerfile
-    envVars:
-      - key: PYTHON_VERSION
-        value: 3.10
+    dockerContext: .
+    region: oregon
+    plan: free
     healthCheckPath: /health
+    envVars:
+      - key: MLFLOW_TRACKING_URI
+        value: http://mlflow:5000
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: PORT
+        value: "8000"
+    
+  # MLflow Server
+  - type: web
+    name: mlflow-server
+    env: docker
+    dockerfilePath: ./Dockerfile.mlflow
+    dockerContext: .
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: MLFLOW_BACKEND_STORE_URI
+        value: sqlite:///mlflow/mlflow.db
+      - key: MLFLOW_DEFAULT_ARTIFACT_ROOT
+        value: /mlflow/artifacts
