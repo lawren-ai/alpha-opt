@@ -24,6 +24,20 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Configure MLflow
+DISABLE_MLFLOW = os.getenv("DISABLE_MLFLOW", "false").lower() == "true"
+
+if not DISABLE_MLFLOW:
+    try:
+        MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
+        mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
+        mlflow.set_experiment("portfolio_optimization")
+        logger.info(f"✅ MLflow configured: {MLFLOW_TRACKING_URI}")
+    except Exception as e:
+        logger.warning(f"⚠️ MLflow setup failed: {e}")
+else:
+    logger.info("ℹ️ MLflow disabled in production")
+
 MLFLOW_TRACKING_URI = os.getenv("MLFLOW_TRACKING_URI", "http://mlflow:5000")
 try:
     mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
@@ -336,27 +350,28 @@ async def optimize_portfolio(request: PortfolioOptimizeRequest):
         computation_time = (time.time() - start_time) * 1000  # ms
         
         logger.info(f"Optimization completed in {computation_time:.2f}ms")
-        # Log to MLflow
-        try:
-            with mlflow.start_run(run_name=f"portfolio_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"):
-                mlflow.log_param("tickers", ",".join(request.tickers))
-                mlflow.log_param("target_return", str(request.target_return))
-                mlflow.log_param("risk_tolerance", request.risk_tolerance)
-                mlflow.log_param("period", request.period)
-                
-                mlflow.log_metric("expected_return", float(result['return']))
-                mlflow.log_metric("volatility", float(result['volatility']))
-                mlflow.log_metric("sharpe_ratio", float(result['sharpe_ratio']))
-                mlflow.log_metric("hhi", float(hhi))
-                mlflow.log_metric("computation_time_ms", computation_time)
-                
-                mlflow.log_dict(result['weights'], "weights.json")
-                
-                mlflow.set_tag("model_type", "mean_variance")
-                
-                logger.info("✅ Logged to MLflow")
-        except Exception as mlflow_error:
-            logger.warning(f"⚠️ MLflow logging failed: {mlflow_error}")
+        if not DISABLE_MLFLOW:
+            # Log to MLflow
+            try:
+                with mlflow.start_run(run_name=f"portfolio_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"):
+                    mlflow.log_param("tickers", ",".join(request.tickers))
+                    mlflow.log_param("target_return", str(request.target_return))
+                    mlflow.log_param("risk_tolerance", request.risk_tolerance)
+                    mlflow.log_param("period", request.period)
+                    
+                    mlflow.log_metric("expected_return", float(result['return']))
+                    mlflow.log_metric("volatility", float(result['volatility']))
+                    mlflow.log_metric("sharpe_ratio", float(result['sharpe_ratio']))
+                    mlflow.log_metric("hhi", float(hhi))
+                    mlflow.log_metric("computation_time_ms", computation_time)
+                    
+                    mlflow.log_dict(result['weights'], "weights.json")
+                    
+                    mlflow.set_tag("model_type", "mean_variance")
+                    
+                    logger.info("✅ Logged to MLflow")
+            except Exception as mlflow_error:
+                logger.warning(f"⚠️ MLflow logging failed: {mlflow_error}")
         return PortfolioOptimizeResponse(
             weights=result['weights'],
             expected_return=result['return'],
