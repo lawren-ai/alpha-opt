@@ -67,9 +67,7 @@ st.sidebar.info(
     "- Real-time Market Data Analysis"
 )
 
-# ============================================================================
-# PAGE 1: PORTFOLIO OPTIMIZER
-# ============================================================================
+# page1: portfolio optimizer
 if page == " Portfolio Optimizer":
     st.header("Portfolio Optimization")
     st.markdown("Optimize your portfolio using Modern Portfolio Theory")
@@ -276,9 +274,7 @@ if page == " Portfolio Optimizer":
                         with st.expander("Error Details"):
                             st.code(traceback.format_exc())
 
-# ============================================================================
-# PAGE 2: OPTIONS PRICER
-# ============================================================================
+# page 2: options pricer
 elif page == " Options Pricer":
     st.header("Options Pricing & Greeks")
     st.markdown("Price options using Black-Scholes Model and Monte Carlo Simulation")
@@ -483,9 +479,7 @@ elif page == " Options Pricer":
                     with st.expander("Error Details"):
                         st.code(traceback.format_exc())
 
-# ============================================================================
-# PAGE 3: MARKET DATA EXPLORER
-# ============================================================================
+# market data explorer
 else:  # Market Data Explorer
     st.header("Market Data Explorer")
     st.markdown("Analyze historical price data and statistics")
