@@ -14,7 +14,7 @@ A comprehensive Python-based portfolio optimization and options pricing platform
 
 ##  Features
 
-### 🚀 Production REST API
+###  Production REST API
 - **FastAPI** with auto-generated documentation
 - Sub-200ms response times for standard requests
 - Docker containerized deployment
@@ -22,21 +22,21 @@ A comprehensive Python-based portfolio optimization and options pricing platform
 - Comprehensive test suite (10/10 passing)
 - Live deployment on Render with auto-scaling
 
-### 📊 Portfolio Optimization
+###  Portfolio Optimization
 - **Mean-Variance Optimization** based on Modern Portfolio Theory (Markowitz, 1952)
 - Interactive efficient frontier visualization
 - Sharpe ratio maximization
 - Customizable constraints and target returns
 - Real-time portfolio rebalancing calculations
 
-### 💹 Options Pricing
+###  Options Pricing
 - **Black-Scholes Model** for European options
 - Complete Greeks calculation (Delta, Gamma, Vega, Theta, Rho)
 - **Monte Carlo simulation** for exotic derivatives
 - Side-by-side pricing comparison
 - Interactive parameter adjustments
 
-### 📈 Market Data Analysis
+###  Market Data Analysis
 - Real-time data integration via Yahoo Finance
 - Historical price charts and trend analysis
 - Returns distribution and volatility calculations
@@ -234,7 +234,7 @@ POST /api/v1/backtest-strategy
 
 ---
 
-## 💻 Usage Examples
+##  Usage Examples
 
 ### Python Client
 
